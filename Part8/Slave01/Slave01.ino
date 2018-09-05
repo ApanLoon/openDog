@@ -2,6 +2,24 @@
 #include <SoftwareSerial.h>
 #include <ODriveArduino.h>
 
+#define LED_LEFT_BOTTOM_WHITE  33
+#define LED_RIGHT_BOTTOM_WHITE 35
+#define LED_LEFT_TOP_YELLOW    37
+#define LED_RIGHT_TOP_YELLOW   39
+
+#define BUTTON1_PIN 25
+#define BUTTON2_PIN 27
+#define BUTTON3_PIN 29
+#define BUTTON4_PIN 31
+        
+#define HOME1_PIN 43
+#define HOME2_PIN 45
+#define HOME3_PIN 47
+#define HOME4_PIN 49
+#define HOME5_PIN 51
+#define HOME6_PIN 53
+
+
 //**************Slave Arduinos****************
 EasyTransfer ET3;   // slave 1 - back of robot
 
@@ -88,26 +106,26 @@ void setup() {
 
   // LEDs
 
-  pinMode(33, OUTPUT);              // white left bottom
-  pinMode(35, OUTPUT);              // white right bottom
-  pinMode(37, OUTPUT);              // yellow left top
-  pinMode(39, OUTPUT);              // yellow right top
+  pinMode(LED_LEFT_BOTTOM_WHITE, OUTPUT);              // white left bottom
+  pinMode(LED_RIGHT_BOTTOM_WHITE, OUTPUT);              // white right bottom
+  pinMode(LED_LEFT_TOP_YELLOW, OUTPUT);              // yellow left top
+  pinMode(LED_RIGHT_TOP_YELLOW, OUTPUT);              // yellow right top
 
   // control panel buttons 
 
-  pinMode(25, INPUT_PULLUP);        // left bottom
-  pinMode(27, INPUT_PULLUP);        // right bottom
-  pinMode(29, INPUT_PULLUP);        // left top
-  pinMode(31, INPUT_PULLUP);        // right top  
+  pinMode(BUTTON1_PIN, INPUT_PULLUP);        // left bottom
+  pinMode(BUTTON2_PIN, INPUT_PULLUP);        // right bottom
+  pinMode(BUTTON3_PIN, INPUT_PULLUP);        // left top
+  pinMode(BUTTON4_PIN, INPUT_PULLUP);        // right top  
 
   // home switches
 
-  pinMode(43, INPUT_PULLUP);
-  pinMode(45, INPUT_PULLUP);
-  pinMode(47, INPUT_PULLUP);
-  pinMode(49, INPUT_PULLUP);
-  pinMode(51, INPUT_PULLUP);
-  pinMode(53, INPUT_PULLUP);
+  pinMode(HOME1_PIN, INPUT_PULLUP);
+  pinMode(HOME2_PIN, INPUT_PULLUP);
+  pinMode(HOME3_PIN, INPUT_PULLUP);
+  pinMode(HOME4_PIN, INPUT_PULLUP);
+  pinMode(HOME5_PIN, INPUT_PULLUP);
+  pinMode(HOME6_PIN, INPUT_PULLUP);
 
   Serial.begin(57600);
   Serial2.begin(115200);
@@ -140,7 +158,7 @@ void setup() {
   }
 
   delay (500); // wait for everything to finish
-  digitalWrite(39, HIGH); // set initial homing LED yellow right top
+  digitalWrite(LED_RIGHT_TOP_YELLOW, HIGH); // set initial homing LED yellow right top
 
 }
 
@@ -153,23 +171,22 @@ void loop() {
    //start timed event
    previousMillis = currentMillis;       
 
-  but1 = digitalRead(25);
-  but2 = digitalRead(27);
-  but3 = digitalRead(29);
-  but4 = digitalRead(31);
+  but1 = digitalRead(BUTTON1_PIN);
+  but2 = digitalRead(BUTTON2_PIN);
+  but3 = digitalRead(BUTTON3_PIN);
+  but4 = digitalRead(BUTTON4_PIN);
         
-  home1 = digitalRead(43);
-  home2 = digitalRead(45);
-  home3 = digitalRead(47);
-  home4 = digitalRead(49);
-  home5 = digitalRead(51);
-  home6 = digitalRead(53);  
-  
+  home1 = digitalRead(HOME1_PIN);
+  home2 = digitalRead(HOME2_PIN);
+  home3 = digitalRead(HOME3_PIN);
+  home4 = digitalRead(HOME4_PIN);
+  home5 = digitalRead(HOME5_PIN);
+  home6 = digitalRead(HOME6_PIN);  
   
   // *****************************right leg**********************************
   
   if (but4 == 0 && flag == 0) {
-    digitalWrite(39, LOW);
+    digitalWrite(LED_RIGHT_TOP_YELLOW, LOW);
     
     Serial.println("Right Motor 0");        
     requested_state = ODriveArduino::AXIS_STATE_MOTOR_CALIBRATION;
@@ -183,7 +200,7 @@ void loop() {
     odrive2.run_state(0, requested_state, false); // don't wait
   
     while (home4a  == 1) {
-      home4 = digitalRead(49);
+      home4 = digitalRead(HOME4_PIN);
       if (home4 == 1) {
         previousFilterMillis = millis();
       }
@@ -215,7 +232,7 @@ void loop() {
     odrive2.run_state(1, requested_state, false); // don't wait 
                    
     while (home3a == 1) {
-      home3 = digitalRead(47);
+      home3 = digitalRead(HOME3_PIN);
       if (home3 == 1) {
         previousFilterMillis = millis();
       }
@@ -234,7 +251,7 @@ void loop() {
     Serial.println(home3Offset);
     odrive2.SetPosition(1, (home3Offset-(8192*2)));  // back off one revolution
     flag = 1;
-    digitalWrite(37, HIGH);     // Yellow top left
+    digitalWrite(LED_LEFT_TOP_YELLOW, HIGH);     // Yellow top left
   }
   
   
@@ -242,7 +259,7 @@ void loop() {
   // *********************************left leg************************************
   
   else if (but3 == 0 && flag == 1) {
-    digitalWrite(37, LOW);
+    digitalWrite(LED_LEFT_TOP_YELLOW, LOW);
     
     Serial.println("Left Motor 0");      
     requested_state = ODriveArduino::AXIS_STATE_MOTOR_CALIBRATION;
@@ -256,7 +273,7 @@ void loop() {
     odrive1.run_state(0, requested_state, false); // don't wait
   
     while (home2a  == 1) {
-      home2 = digitalRead(45);
+      home2 = digitalRead(HOME2_PIN);
       if (home2 == 1) {
         previousFilterMillis = millis();
       }
@@ -288,7 +305,7 @@ void loop() {
     odrive1.run_state(1, requested_state, false); // don't wait
   
     while (home1a == 1) {
-      home1 = digitalRead(43);
+      home1 = digitalRead(HOME1_PIN);
       if (home1 == 1) {
         previousFilterMillis = millis();
       }
@@ -308,14 +325,14 @@ void loop() {
     odrive1.SetPosition(1, (home1Offset-(8192*2)));  // back off one revolution 
   
     // time to boost the legs up
-    digitalWrite(37, HIGH);   // yellow left
-    digitalWrite(39, HIGH);   // yellow right
+    digitalWrite(LED_LEFT_TOP_YELLOW, HIGH);   // yellow left
+    digitalWrite(LED_RIGHT_TOP_YELLOW, HIGH);   // yellow right
     flag = 2;       
   }
   
   else if (but4 == 0 || but3 == 0 && flag == 2) {
-     digitalWrite(37, LOW);
-     digitalWrite(39, LOW);           
+     digitalWrite(LED_LEFT_TOP_YELLOW, LOW);
+     digitalWrite(LED_RIGHT_TOP_YELLOW, LOW);           
   
      for (int axis = 0; axis < 2; ++axis) {
           Serial2 << "w axis" << axis << ".controller.config.vel_limit " << 48000.0f << '\n';     // set motor speed to fast ODrive1               
@@ -330,7 +347,7 @@ void loop() {
      odrive1.SetPosition(0, (home2Offset - 163840));      // move legs straight left
      odrive1.SetPosition(1, (home1Offset - 245760));      // move legs straight left     
   
-     digitalWrite(35, HIGH); // white LED right - ready for undercarriage calibration
+     digitalWrite(LED_RIGHT_BOTTOM_WHITE, HIGH); // white LED right - ready for undercarriage calibration
      flag = 3;
   }
   
@@ -339,7 +356,7 @@ void loop() {
     
   else if (but2 == 0 && flag == 3) {
     // bend right leg
-    digitalWrite(35, LOW);
+    digitalWrite(LED_RIGHT_BOTTOM_WHITE, LOW);
     odrive2.SetPosition(0, (home4Offset - 16384));      // move leg bent right
     odrive2.SetPosition(1, (home3Offset - 16384));      // move leg bent right
     delay (2000); // wait for leg to bend
@@ -360,7 +377,7 @@ void loop() {
     // move undercarriage ODrive axis 1 under it hits the home switch 6
   
     while (home6a == 1) {
-      home6 = digitalRead(53);
+      home6 = digitalRead(HOME6_PIN);
       if (home6 == 1) {
         previousFilterMillis = millis();
       }
@@ -392,14 +409,14 @@ void loop() {
     odrive2.SetPosition(0, (home4Offset - 163840));      // move legs straight right
     odrive2.SetPosition(1, (home3Offset - 245760));      // move legs straight right        
     
-    digitalWrite(33, HIGH);   // white LED left bottom - ready for the other side
+    digitalWrite(LED_LEFT_BOTTOM_WHITE, HIGH);   // white LED left bottom - ready for the other side
     flag = 4;
     }
   
   //**************** do the other leg *****************
   
   else if (but1 == 0 && flag == 4) {
-    digitalWrite(33, LOW);
+    digitalWrite(LED_LEFT_BOTTOM_WHITE, LOW);
     odrive1.SetPosition(0, (home2Offset - 16384));      // move leg bent left
     odrive1.SetPosition(1, (home1Offset - 16384));      // move leg bent left
     delay (2000); // wait for leg to bend
@@ -420,7 +437,7 @@ void loop() {
     // move undercarriage ODrive axis 0 under it hits the home switch 5
   
     while (home5a == 1) {
-      home5 = digitalRead(51);
+      home5 = digitalRead(HOME5_PIN);
       if (home5 == 1) {
         previousFilterMillis = millis();
       }
